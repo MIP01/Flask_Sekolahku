@@ -1,10 +1,10 @@
 from flask import Blueprint
-from controller.user_controller import create_user_controller, list_users_controller, get_user_controller, update_user_controller, delete_user_controller
+from controller.user_controller import create_user_handler, get_users_handler, get_user_by_handler, update_user_handler, delete_user_handler
 
-user_bp = Blueprint('user', __name__)
+user_bp = Blueprint('user_bp', __name__)
 
-user_bp.route('/', methods=['POST'])(create_user_controller)
-user_bp.route('/', methods=['GET'])(list_users_controller)
-user_bp.route('/<int:user_id>', methods=['GET'])(get_user_controller)
-user_bp.route('/<int:user_id>', methods=['PUT'])(update_user_controller)
-user_bp.route('/<int:user_id>', methods=['DELETE'])(delete_user_controller)
+user_bp.route('/user', methods=['POST'])(create_user_handler)
+user_bp.route('/user', methods=['GET'])(get_users_handler)
+user_bp.route('/user/<int:user_id>', methods=['GET'])(get_user_by_handler)
+user_bp.route('/user/<int:user_id>', methods=['PUT'])(update_user_handler)
+user_bp.route('/user/<int:user_id>', methods=['DELETE'])(delete_user_handler)

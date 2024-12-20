@@ -1,30 +1,45 @@
 from flask import request, jsonify
-from module.user_module import create_user, get_users, get_user, update_user, delete_user
-from middleware.success_handler import success_handler
+from module.user_module import create_user, get_users, get_user_by, update_user, delete_user
 
-@success_handler
-def create_user_controller():
+def create_user_handler():
     data = request.get_json()
-    new_user= create_user(data)
-    return new_user, 201
+    result, status_code = create_user(data)
+    
+    if isinstance(result, dict) and 'error' in result:
+        return jsonify(result), status_code
 
-@success_handler
-def list_users_controller():
-    users = get_users()
-    return users
+    return jsonify(result), 200
 
-@success_handler
-def get_user_controller(user_id):
-    user = get_user(user_id)
-    return user
+def get_users_handler():
+    result = get_users()
+    return jsonify(result), 200
 
-@success_handler
-def update_user_controller(user_id):
-    data = request.json
-    updated_user = update_user(user_id, data)
-    return updated_user, 201
+def get_user_by_handler(user_id):
+    result = get_user_by(user_id)
+    
+    # Tangani error jika ada
+    if isinstance(result, dict) and 'error' in result:
+        return jsonify(result), 400
 
-@success_handler        
-def delete_user_controller(user_id):
-    success = delete_user(user_id)
-    return success
+    return jsonify(result), 200
+
+def update_user_handler(user_id):
+    data = request.get_json()
+    result, status_code = update_user(user_id, data)
+
+    # Jika mahasiswa tidak ditemukan, kembalikan error 404
+    if isinstance(result, dict) and 'error' in result:
+        return jsonify(result), status_code
+    
+    return jsonify(result), status_code
+
+    # Kembalikan data mahasiswa yang diperbarui
+    return jsonify(result.to_dict()), 200
+
+def delete_user_handler(user_id):
+    result, status_code = delete_user(user_id)
+    
+    if isinstance(result, dict) and 'error' in result:
+        return jsonify(result), status_code
+
+    return jsonify(result), status_code

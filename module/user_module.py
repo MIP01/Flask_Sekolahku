@@ -1,30 +1,70 @@
 from model import db, User
-from middleware.error_handler import ResourceNotFoundError
+from sqlalchemy.exc import IntegrityError
 
 def create_user(data):
-    new_user = User(name=data['name'], email=data['email'], address=data['address'])
-    db.session.add(new_user)
-    db.session.commit()
-    return new_user.to_dict()
+    try:
+        result = User(
+            nama=data['nama'],
+            alamat=data['alamat'])
+
+        db.session.add(result)
+        db.session.commit()
+
+        # Mengembalikan data user beserta sapaan
+        return result.to_dict(), 200
+
+    except IntegrityError:
+        db.session.rollback()  # Rollback untuk membersihkan sesi
+        return {'error': 'User sudah ada.'}, 409
 
 def get_users():
-    users = User.query.all()
-    return [user.to_dict() for user in users]
+    user_list = User.query.all()
 
-def get_user(user_id):
-    user = User.query.get_or_404(user_id)
-    return user.to_dict()
+    # Membuat list untuk menyimpan hasil yang akan ditampilkan
+    result = []
+
+    # Mengiterasi setiap entri mahasiswa dan menyusun dictionary untuk setiap entri
+    for user in user_list:
+        result.append({
+            'user_id': user.user_id,
+            'nama': user.nama,
+            'alamat': user.alamat
+        })
+    
+    return result
+
+def get_user_by(user_id):
+    user = User.query.get(user_id)
+
+    if not user:
+        return {"error": "User tidak ditemukan."}, 404
+
+    result = {
+        'user_id': user.user_id,
+        "nama": user.nama,
+        "alamat": user.alamat
+    }
+
+    return result
 
 def update_user(user_id, data):
-    user = User.query.get_or_404(user_id)
-    user.name = data['name']
-    user.email = data['email']
-    user.address = data['address']
+    user = User.query.get(user_id)
+
+    if not user:
+        return {"error": "User tidak ditemukan."}, 404
+
+    user.nama = data['nama']
+    user.alamat = data['alamat']
     db.session.commit()
-    return user.to_dict()
+
+    return {"success": "Data user berhasil diperbaharui."}, 200
 
 def delete_user(user_id):
-    user = User.query.get_or_404(user_id)
+    user = User.query.get(user_id)
+
+    if not user:
+        return {"error": "User tidak ditemukan."}, 404
+
     db.session.delete(user)
     db.session.commit()
-    return 'Data Deleted'
+    return {"success": "User berhasil dihapus."}, 200

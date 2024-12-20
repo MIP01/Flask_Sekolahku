@@ -1,4 +1,5 @@
 import os
+import pymysql
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,7 +14,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 DEBUG = True
 
 # Connect to the MYSQL database
-SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL').replace('mysql://', 'mysql+pymysql://')
 
 # Turn off the Flask-SQLAlchemy event system and warning
 SQLALCHEMY_TRACK_MODIFICATIONS = False
