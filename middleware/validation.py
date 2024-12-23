@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import request, jsonify
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, fields, validate, ValidationError
 
 def validate_input(schema_class):
     def decorator(func):
@@ -24,7 +24,14 @@ class UserSchema(Schema):
     nama = fields.Str(
         required=True,
         validate=[
-            validate.Length(min=1, max=100),
+            validate.Length(min=3, max=100),
             validate.Regexp(r"^[A-Za-z\s]+$", error="Nama tidak boleh mengandung simbol")
+        ]
+    )
+    alamat = fields.Str(
+        required=False,
+        validate=[
+            validate.Length(min=3, max=150),
+            validate.Regexp(r"^[A-Za-z0-9\s,.\-/()]+$", error="Alamat hanya boleh mengandung simbol () , . - /")
         ]
     )
