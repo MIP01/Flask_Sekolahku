@@ -10,8 +10,7 @@ def create_user(data):
         db.session.add(result)
         db.session.commit()
 
-        # Mengembalikan data user beserta sapaan
-        return result.to_dict(), 200
+        return {"success": "Berhasil membuat user."}, 200
 
     except IntegrityError:
         db.session.rollback()  # Rollback untuk membersihkan sesi

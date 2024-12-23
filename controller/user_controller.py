@@ -1,6 +1,8 @@
 from flask import request, jsonify
 from module.user_module import create_user, get_users, get_user_by, update_user, delete_user
+from middleware.validation import validate_input, UserSchema
 
+@validate_input(UserSchema)
 def create_user_handler():
     data = request.get_json()
     result, status_code = create_user(data)
@@ -23,6 +25,7 @@ def get_user_by_handler(user_id):
 
     return jsonify(result), 200
 
+@validate_input(UserSchema)
 def update_user_handler(user_id):
     data = request.get_json()
     result, status_code = update_user(user_id, data)
