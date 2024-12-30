@@ -3,6 +3,7 @@ import pymysql
 from dotenv import load_dotenv
 
 load_dotenv()
+pymysql.install_as_MySQLdb()
 
 # Each Flask web application contains a secret key which used to sign session cookies for protection against cookie data tampering.
 SECRET_KEY = os.urandom(32)

@@ -7,7 +7,8 @@ class User(db.Model):
 
     user_id = db.Column(db.Integer, primary_key=True)
     _nama = db.Column(db.String(100), nullable=False, unique=True)
-    _alamat = db.Column(db.String(150), nullable=False)
+    _email = db.Column(db.String(150), nullable=False, unique=True)
+    no_telp = db.Column(db.String(18), unique=True, nullable=False)
 
     @property
     def nama(self):
@@ -18,16 +19,17 @@ class User(db.Model):
         self._nama = value.upper()
 
     @property
-    def alamat(self):
-        return self._alamat
+    def email(self):
+        return self._email
 
-    @alamat.setter
-    def alamat(self, value):
-        self._alamat = value.upper()
+    @email.setter
+    def email(self, value):
+        self._email = value.upper()
 
     def to_dict(self):
         return {
             'user_id': self.user_id,
             'nama': self.nama,
-            'alamat': self.alamat,
+            'email': self.email,
+            'no_telp' : self.no_telp,
         }
