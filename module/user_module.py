@@ -4,18 +4,19 @@ from sqlalchemy.exc import IntegrityError
 def create_user(data):
     try:
         user = User(
-            nama=data['nama'],
+            username=data['username'],
             email=data['email'],
-            no_telp=data['no_telp'])
+            password=data['password']
+        )
 
         db.session.add(user)
         db.session.commit()
 
-        return {"success": "Berhasil membuat user", "data": user.to_dict()}, 200
+        return {"success": "Berhasil membuat user", "data": user.to_dict()}, 201
 
     except IntegrityError:
         db.session.rollback()  # Rollback untuk membersihkan sesi
-        return {"error": "No HP sudah terdaftar. Silakan gunakan No HP lain."}, 409
+        return {"error": "Email sudah terdaftar. Silakan gunakan Email lain."}, 409
 
 def get_all_user():
     user_list = User.query.all()
@@ -28,32 +29,44 @@ def get_all_user():
     
     return result, 200
 
-def get_user_by(user_id):
+def get_user_by(user_id, current_user):
     user = User.query.get(user_id)
 
     if not user:
         return {"error": "User tidak ditemukan."}, 404
+
+    # Verifikasi bahwa user yang sedang login hanya bisa menghapus dirinya sendiri
+    if current_user['role'] == 'user' and user.user_id != current_user['id']:
+        return {'error': 'Unauthorized access to this user'}, 403
 
     return user.to_dict(), 200
 
-def update_user(user_id, data):
+def update_user(user_id, data, current_user):
     user = User.query.get(user_id)
 
     if not user:
         return {"error": "User tidak ditemukan."}, 404
 
-    user.nama = data['nama']
+    # Verifikasi bahwa user yang sedang login hanya bisa mengupdate dirinya sendiri
+    if current_user['role'] == 'user' and user.user_id != current_user['id']:
+        return {'error': 'Unauthorized access to update this user'}, 403
+
+    user.username = data['username']
     user.email = data['email']
-    user.no_telp = data['no_telp']
+    user.password = data['password']
     db.session.commit()
 
     return {"success": "Data user berhasil diperbaharui", "data": user.to_dict()}, 200
 
-def delete_user(user_id):
+def delete_user(user_id, current_user):
     user = User.query.get(user_id)
 
     if not user:
         return {"error": "User tidak ditemukan."}, 404
+
+     # Verifikasi bahwa user yang sedang login hanya bisa menghapus dirinya sendiri
+    if current_user['role'] == 'user' and user.user_id != current_user['id']:
+        return {'error': 'Unauthorized access to delete this user'}, 403
 
     db.session.delete(user)
     db.session.commit()
