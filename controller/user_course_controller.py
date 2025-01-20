@@ -1,5 +1,5 @@
 from flask import request, jsonify, g
-from module.user_course_module import create_user_course, get_all_user_course, get_course_participants, update_user_course, delete_user_course
+from module.user_course_module import create_user_course, get_all_user_course, get_course_participants, get_commission, update_user_course, delete_user_course
 from middleware.validation import validate_input, UserSchema
 from middleware.decorator_handler import role_required
 
@@ -30,6 +30,15 @@ def get_all_user_course_handler():
 @role_required(['administrator'])
 def get_course_participants_handler():
     result, status_code = get_course_participants()
+
+    if isinstance(result, dict) and 'error' in result:
+        return jsonify(result), status_code
+
+    return jsonify(result), status_code
+
+@role_required(['administrator'])
+def get_commission_handler():
+    result, status_code = get_commission()
 
     if isinstance(result, dict) and 'error' in result:
         return jsonify(result), status_code

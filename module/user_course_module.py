@@ -92,6 +92,32 @@ def get_course_participants():
 
     return result, 200
 
+def get_commission():
+    try:
+        # Query to get all mentors with their respective courses and participants
+        mentors = db.session.query(
+            Courses.mentor,
+            db.func.count(UserCourse.userCourse_id).label('total_participants')
+        ).join(UserCourse, Courses.course_id == UserCourse.course_id, isouter=True) \
+         .group_by(Courses.mentor).all()
+
+        # Calculate commission for each mentor
+        result = []
+        for mentor, total_participants in mentors:
+            total_participants = total_participants or 0  # Handle None case
+            commission = total_participants * 2000
+            result.append({
+                'mentor': mentor,
+                'total_participants': total_participants,
+                'commission': commission
+            })
+
+        return result, 200
+
+    except Exception as e:
+        return {'error': 'Terjadi kesalahan'}, 500
+
+    
 def update_user_course(userCourse_id, data, current_user):
     user_course = UserCourse.query.get(userCourse_id)
 
